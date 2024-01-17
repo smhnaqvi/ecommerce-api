@@ -12,7 +12,7 @@ import (
 )
 
 // InitRoutes initializes routes
-func InitRoutes(e *echo.Echo) {
+func initRoutes(e *echo.Echo) {
 	userController := &controllers.UserController{}
 	initUserRoutes(e, userController)
 
@@ -100,7 +100,6 @@ func StartServer(db *gorm.DB) {
 	// Middleware
 	// e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
-	
 
 	// Set debug mode based on the environment variable
 	debugMode := os.Getenv("DEBUG")
@@ -108,13 +107,13 @@ func StartServer(db *gorm.DB) {
 		e.Debug = true
 	}
 
-	InitRoutes(e)
+	initRoutes(e)
 
 	e.GET("/ping", func(c echo.Context) error {
 		c.JSON(http.StatusOK, "pong")
 		return nil
 	})
-	
+
 	port := os.Getenv("APP_PORT")
 	e.Logger.Fatal(e.Start(":" + port))
 }

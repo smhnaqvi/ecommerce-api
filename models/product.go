@@ -1,10 +1,12 @@
 package models
 
-import DB "ecommerce/database"
+import (
+	DB "ecommerce/database"
+)
 
 type Product struct {
-	ProductID     uint    `gorm:"primaryKey;autoIncrement"`
-	Name          string  `gorm:"not null"`
+	ProductID     uint   `gorm:"primaryKey;autoIncrement"`
+	Name          string `gorm:"not null"`
 	Description   string
 	Price         float64 `gorm:"not null"`
 	StockQuantity int     `gorm:"not null"`
@@ -13,7 +15,7 @@ type Product struct {
 }
 
 // GetAllProducts returns all products
-func GetAllProducts() ([]Product, error) {
+func (m *Product) GetAllProducts() ([]Product, error) {
 	var products []Product
 	if err := DB.Connection.Find(&products).Error; err != nil {
 		return nil, err
@@ -22,7 +24,7 @@ func GetAllProducts() ([]Product, error) {
 }
 
 // GetProductByID returns a product by ID
-func GetProductByID(id uint) (*Product, error) {
+func (m *Product) GetProductByID(id uint) (*Product, error) {
 	var product Product
 	if err := DB.Connection.First(&product, id).Error; err != nil {
 		return nil, err
@@ -31,7 +33,7 @@ func GetProductByID(id uint) (*Product, error) {
 }
 
 // CreateProduct creates a new product
-func CreateProduct(product *Product) error {
+func (m *Product) CreateProduct(product *Product) error {
 	if err := DB.Connection.Create(&product).Error; err != nil {
 		return err
 	}
@@ -39,7 +41,7 @@ func CreateProduct(product *Product) error {
 }
 
 // UpdateProduct updates a product
-func UpdateProduct(id uint, updatedProduct *Product) error {
+func (m *Product) UpdateProduct(id uint, updatedProduct *Product) error {
 	var product Product
 	if err := DB.Connection.First(&product, id).Error; err != nil {
 		return err
@@ -51,7 +53,7 @@ func UpdateProduct(id uint, updatedProduct *Product) error {
 }
 
 // DeleteProduct deletes a product
-func DeleteProduct(id uint) error {
+func (m *Product) DeleteProduct(id uint) error {
 	var product Product
 	if err := DB.Connection.First(&product, id).Error; err != nil {
 		return err

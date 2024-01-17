@@ -7,13 +7,14 @@ type User struct {
 	Username     string `gorm:"unique;not null"`
 	PasswordHash string `gorm:"not null"`
 	Email        string `gorm:"unique;not null"`
-	FullName     string `gorm:"not null"`
+	FirstName    string `gorm:"not null"`
+	LastName     string `gorm:"not null"`
 	Address      string
 	// Other user-related fields as needed
 }
 
 // GetAllUsers returns all users
-func GetAllUsers() ([]User, error) {
+func (m *User) GetAllUsers() ([]User, error) {
 	var users []User
 	if err := DB.Connection.Find(&users).Error; err != nil {
 		return nil, err
@@ -22,7 +23,7 @@ func GetAllUsers() ([]User, error) {
 }
 
 // GetUserByID returns a user by ID
-func GetUserByID(id uint) (*User, error) {
+func (m *User) GetUserByID(id uint) (*User, error) {
 	var user User
 	if err := DB.Connection.First(&user, id).Error; err != nil {
 		return nil, err
@@ -31,7 +32,7 @@ func GetUserByID(id uint) (*User, error) {
 }
 
 // CreateUser creates a new user
-func CreateUser(newUser *User) error {
+func (m *User) CreateUser(newUser *User) error {
 	if err := DB.Connection.Create(newUser).Error; err != nil {
 		return err
 	}
@@ -39,7 +40,7 @@ func CreateUser(newUser *User) error {
 }
 
 // UpdateUser updates a user
-func UpdateUser(id uint, updatedUser *User) error {
+func (m *User) UpdateUser(id uint, updatedUser *User) error {
 	var user User
 	if err := DB.Connection.First(&user, id).Error; err != nil {
 		return err
@@ -51,7 +52,7 @@ func UpdateUser(id uint, updatedUser *User) error {
 }
 
 // DeleteUser deletes a user
-func DeleteUser(id uint) error {
+func (m *User) DeleteUser(id uint) error {
 	var user User
 	if err := DB.Connection.First(&user, id).Error; err != nil {
 		return err

@@ -32,7 +32,6 @@ func main() {
 	routes.StartServer(db)
 }
 
-
 // Function to auto-migrate models
 func MigrateModels(db *gorm.DB) error {
 	return db.AutoMigrate(

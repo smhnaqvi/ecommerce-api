@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"ecommerce/api"
 	"ecommerce/models"
 	"net/http"
 	"strconv"
@@ -13,14 +14,25 @@ type UserController struct {
 	// Define any dependencies or services required by the controller
 }
 
-// GetUsers handles GET request to fetch all users
+var UserModel = &models.User{}
+
+// GetUsers is the handler for fetching all users
 func (uc *UserController) GetUsers(c echo.Context) error {
-	users, err := models.GetAllUsers()
+	users, err := UserModel.GetAllUsers()
 	if err != nil {
-		log.Error("Invalid request payload: ", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch users"})
+		log.Error("Failed to fetch users: ", err)
+		response := api.Response{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to fetch users",
+		}
+		return c.JSON(http.StatusInternalServerError, response)
 	}
-	return c.JSON(http.StatusOK, users)
+
+	response := api.Response{
+		Status: http.StatusOK,
+		Data:   users,
+	}
+	return c.JSON(http.StatusOK, response)
 }
 
 // CreateUser handles POST request to create a new user
@@ -31,7 +43,7 @@ func (uc *UserController) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
-	if err := models.CreateUser(user); err != nil {
+	if err := user.CreateUser(user); err != nil {
 		log.Error("Invalid request payload: ", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
 	}
@@ -47,7 +59,7 @@ func (uc *UserController) GetUserByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	user, err := models.GetUserByID(uint(id))
+	user, err := UserModel.GetUserByID(uint(id))
 	if err != nil {
 		log.Error("Invalid request payload: ", err)
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
@@ -64,17 +76,17 @@ func (uc *UserController) UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	updatedUser := new(models.User)
-	if err := c.Bind(updatedUser); err != nil {
+	user := new(models.User)
+	if err := c.Bind(user); err != nil {
 		log.Error("Invalid request payload: ", err)
 		return err
 	}
 
-	if err := models.UpdateUser(uint(id), updatedUser); err != nil {
+	if err := UserModel.UpdateUser(uint(id), user); err != nil {
 		log.Error("Invalid request payload: ", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update user"})
 	}
-	return c.JSON(http.StatusOK, updatedUser)
+	return c.JSON(http.StatusOK, user)
 }
 
 // DeleteUser handles DELETE request to delete a user by ID
@@ -86,7 +98,7 @@ func (uc *UserController) DeleteUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 	}
 
-	if err := models.DeleteUser(uint(id)); err != nil {
+	if err := UserModel.DeleteUser(uint(id)); err != nil {
 		log.Error("Invalid request payload: ", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete user"})
 	}
