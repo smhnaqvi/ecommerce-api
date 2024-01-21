@@ -3,13 +3,12 @@ package models
 import DB "ecommerce/database"
 
 type User struct {
-	UserID       uint   `gorm:"primaryKey;autoIncrement"`
-	Username     string `gorm:"unique;not null"`
-	PasswordHash string `gorm:"not null"`
-	Email        string `gorm:"unique;not null"`
-	FirstName    string `gorm:"not null"`
-	LastName     string `gorm:"not null"`
-	Address      string
+	UserID       uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	FirstName    string `json:"first_name" gorm:"not null"`
+	LastName     string `json:"last_name" gorm:"not null"`
+	PasswordHash string `json:"password" gorm:"not null"`
+	Email        string `json:"email" gorm:"unique;not null"`
+	Address      string `json:"address"`
 	// Other user-related fields as needed
 }
 
@@ -31,12 +30,21 @@ func (m *User) GetUserByID(id uint) (*User, error) {
 	return &user, nil
 }
 
-// CreateUser creates a new user
-func (m *User) CreateUser(newUser *User) error {
-	if err := DB.Connection.Create(newUser).Error; err != nil {
-		return err
+// GetUserByEmail returns a user by email
+func (m *User) GetUserByEmail(email string) (*User, error) {
+	var user User
+	if err := DB.Connection.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return &user, nil
+}
+
+// CreateUser creates a new user and returns the created user ID
+func (m *User) CreateUser(newUser *User) (uint, error) {
+	if err := DB.Connection.Create(newUser).Error; err != nil {
+		return 0, err
+	}
+	return newUser.UserID, nil
 }
 
 // UpdateUser updates a user

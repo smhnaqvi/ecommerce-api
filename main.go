@@ -24,10 +24,10 @@ func main() {
 	}
 
 	// AutoMigrate will create tables based on the provided struct models
-
 	if err := MigrateModels(db); err != nil {
 		log.Fatal("Database Error: ", err)
 	}
+	log.Info("all migration is run")
 	// Start the Echo server and define routes
 	routes.StartServer(db)
 }
@@ -36,6 +36,7 @@ func main() {
 func MigrateModels(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.User{},
+		&models.Session{},
 		&models.Product{},
 		&models.Category{},
 		&models.Order{},

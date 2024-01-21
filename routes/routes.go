@@ -13,6 +13,9 @@ import (
 
 // InitRoutes initializes routes
 func initRoutes(e *echo.Echo) {
+	authController := &controllers.AuthController{}
+	initAuthRoutes(e, authController)
+
 	userController := &controllers.UserController{}
 	initUserRoutes(e, userController)
 
@@ -33,6 +36,12 @@ func initRoutes(e *echo.Echo) {
 
 	couponController := &controllers.CouponController{}
 	initCouponRoutes(e, couponController)
+}
+
+func initAuthRoutes(e *echo.Echo, uc *controllers.AuthController) {
+	log.Info("initAuthenticationRoutes")
+	e.POST("/auth/login", uc.Login)
+	e.POST("/auth/register", uc.Register)
 }
 
 func initUserRoutes(e *echo.Echo, uc *controllers.UserController) {
