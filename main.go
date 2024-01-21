@@ -34,6 +34,21 @@ func main() {
 
 // Function to auto-migrate models
 func MigrateModels(db *gorm.DB) error {
+
+	// db.Migrator().DropTable(
+	// 	&models.User{},
+	// 	&models.Session{},
+	// 	&models.Product{},
+	// 	&models.Category{},
+	// 	&models.Order{},
+	// 	&models.OrderDetail{},
+	// 	&models.Review{},
+	// 	&models.ShoppingCart{},
+	// 	&models.Payment{},
+	// 	&models.Address{},
+	// 	&models.Coupon{},
+	// )
+
 	return db.AutoMigrate(
 		&models.User{},
 		&models.Session{},

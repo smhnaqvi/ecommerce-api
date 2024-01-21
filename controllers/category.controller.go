@@ -18,9 +18,9 @@ type CategoryController struct {
 
 // GetAllCategories handles GET request to fetch all categories
 func (cc *CategoryController) GetAllCategories(c echo.Context) error {
-	categories, err := models.GetAllCategories()
+	categories, err := models.GetAllCategoriesTree()
 	if err != nil {
-		utils.LogError("GetAllCategories", "Failed to fetch categories", err)
+		utils.LogError("GetAllCategoriesTree", "Failed to fetch categories", err)
 		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to fetch categories")})
 	}
 	return api.Response(c, http.StatusOK, api.ResponseType{Data: categories})
@@ -52,7 +52,7 @@ func (cc *CategoryController) CreateCategory(c echo.Context) error {
 
 	if err := models.CreateCategory(newCategory); err != nil {
 		utils.LogError("CreateCategory", "Failed to create category", err)
-		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to create category")})
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: err})
 	}
 
 	return api.Response(c, http.StatusCreated, api.ResponseType{Data: newCategory})
@@ -63,7 +63,7 @@ func (cc *CategoryController) UpdateCategory(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		utils.LogError("UpdateCategory", "Invalid category ID", err)
-		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid category ID")})
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: err})
 	}
 
 	updatedCategory := new(models.Category)
@@ -74,7 +74,7 @@ func (cc *CategoryController) UpdateCategory(c echo.Context) error {
 
 	if err := models.UpdateCategory(uint(id), updatedCategory); err != nil {
 		utils.LogError("UpdateCategory", "Failed to update category", err)
-		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to update category")})
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: err})
 	}
 
 	return api.Response(c, http.StatusOK, api.ResponseType{Data: updatedCategory})
@@ -85,12 +85,12 @@ func (cc *CategoryController) DeleteCategory(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		utils.LogError("DeleteCategory", "Invalid category ID", err)
-		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid category ID")})
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: err})
 	}
 
 	if err := models.DeleteCategory(uint(id)); err != nil {
 		utils.LogError("DeleteCategory", "Failed to delete category", err)
-		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to delete category")})
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: err})
 	}
 
 	return api.Response(c, http.StatusOK, api.ResponseType{Message: "Category deleted successfully"})
