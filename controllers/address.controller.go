@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"ecommerce/api"
 	"ecommerce/models"
+	"ecommerce/utils"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -16,65 +19,78 @@ type AddressController struct {
 func (ac *AddressController) GetAddresses(c echo.Context) error {
 	addresses, err := models.GetAllAddresses()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch addresses"})
+		utils.LogError("GetAddresses", "Failed to fetch addresses", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to fetch addresses")})
 	}
-	return c.JSON(http.StatusOK, addresses)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: addresses})
 }
 
 // GetAddressByID handles GET request to fetch an address by ID
 func (ac *AddressController) GetAddressByID(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		utils.LogError("GetAddressByID", "Invalid ID format", err)
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid ID format")})
 	}
 
 	address, err := models.GetAddressByID(uint(id))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Address not found"})
+		utils.LogError("GetAddressByID", "Failed to fetch address by ID", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Address not found")})
 	}
-	return c.JSON(http.StatusOK, address)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: address})
 }
 
 // CreateAddress handles POST request to create a new address
 func (ac *AddressController) CreateAddress(c echo.Context) error {
 	address := new(models.Address)
 	if err := c.Bind(address); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		utils.LogError("CreateAddress", "Invalid request payload", err)
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: err})
 	}
 
 	if err := models.CreateAddress(address); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create address"})
+		utils.LogError("CreateAddress", "Failed to create address", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to create address")})
 	}
-	return c.JSON(http.StatusCreated, address)
+
+	return api.Response(c, http.StatusCreated, api.ResponseType{Data: address})
 }
 
 // UpdateAddress handles PUT request to update an address by ID
 func (ac *AddressController) UpdateAddress(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		utils.LogError("UpdateAddress", "Invalid ID format", err)
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid ID format")})
 	}
 
 	updatedAddress := new(models.Address)
 	if err := c.Bind(updatedAddress); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		utils.LogError("UpdateAddress", "Invalid request payload", err)
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: err})
 	}
 
 	if err := models.UpdateAddress(uint(id), updatedAddress); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update address"})
+		utils.LogError("UpdateAddress", "Failed to update address", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to update address")})
 	}
-	return c.JSON(http.StatusOK, updatedAddress)
+
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: updatedAddress})
 }
 
 // DeleteAddress handles DELETE request to delete an address by ID
 func (ac *AddressController) DeleteAddress(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		utils.LogError("DeleteAddress", "Invalid ID format", err)
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid ID format")})
 	}
 
 	if err := models.DeleteAddress(uint(id)); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete address"})
+		utils.LogError("DeleteAddress", "Failed to delete address", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to delete address")})
 	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "Address deleted"})
+
+	return api.Response(c, http.StatusOK, api.ResponseType{Message: "Address deleted"})
 }

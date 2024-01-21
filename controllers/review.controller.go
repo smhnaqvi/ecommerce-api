@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"ecommerce/api"
 	"ecommerce/models"
+	"ecommerce/utils"
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,9 +19,10 @@ type ReviewController struct {
 func (rc *ReviewController) GetAllReviews(c echo.Context) error {
 	reviews, err := models.GetAllReviews()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch reviews"})
+		utils.LogError("GetAllReviews", "Failed to fetch reviews", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to fetch reviews")})
 	}
-	return c.JSON(http.StatusOK, reviews)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: reviews})
 }
 
 // GetReviewByID handles GET request to fetch a review by ID
@@ -26,9 +30,10 @@ func (rc *ReviewController) GetReviewByID(c echo.Context) error {
 	id := c.Param("id")
 	review, err := models.GetReviewByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Review not found"})
+		utils.LogError("GetReviewByID", "Review not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Review not found")})
 	}
-	return c.JSON(http.StatusOK, review)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: review})
 }
 
 // CreateReview handles POST request to create a new review
@@ -38,9 +43,10 @@ func (rc *ReviewController) CreateReview(c echo.Context) error {
 		return err
 	}
 	if err := models.CreateReview(review); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create review"})
+		utils.LogError("CreateReview", "Failed to create review", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to create review")})
 	}
-	return c.JSON(http.StatusCreated, review)
+	return api.Response(c, http.StatusCreated, api.ResponseType{Data: review})
 }
 
 // UpdateReview handles PUT request to update a review by ID
@@ -48,7 +54,8 @@ func (rc *ReviewController) UpdateReview(c echo.Context) error {
 	id := c.Param("id")
 	existingReview, err := models.GetReviewByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Review not found"})
+		utils.LogError("UpdateReview", "Review not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Review not found")})
 	}
 
 	updatedReview := new(models.Review)
@@ -57,9 +64,10 @@ func (rc *ReviewController) UpdateReview(c echo.Context) error {
 	}
 
 	if err := models.UpdateReview(existingReview, updatedReview); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update review"})
+		utils.LogError("UpdateReview", "Failed to update review", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to update review")})
 	}
-	return c.JSON(http.StatusOK, existingReview)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: existingReview})
 }
 
 // DeleteReview handles DELETE request to delete a review by ID
@@ -67,11 +75,13 @@ func (rc *ReviewController) DeleteReview(c echo.Context) error {
 	id := c.Param("id")
 	review, err := models.GetReviewByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Review not found"})
+		utils.LogError("DeleteReview", "Review not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Review not found")})
 	}
 
 	if err := models.DeleteReview(review); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete review"})
+		utils.LogError("DeleteReview", "Failed to delete review", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to delete review")})
 	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "Review deleted successfully"})
+	return api.Response(c, http.StatusOK, api.ResponseType{Message: "Review deleted successfully"})
 }

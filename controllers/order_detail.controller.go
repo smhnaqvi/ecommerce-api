@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"ecommerce/api"
 	"ecommerce/models"
+	"ecommerce/utils"
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,9 +19,10 @@ type OrderDetailController struct {
 func (oc *OrderDetailController) GetAllOrderDetails(c echo.Context) error {
 	orderDetails, err := models.GetAllOrderDetails()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch order details"})
+		utils.LogError("GetAllOrderDetails", "Failed to fetch order details", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to fetch order details")})
 	}
-	return c.JSON(http.StatusOK, orderDetails)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: orderDetails})
 }
 
 // GetOrderDetailByID handles GET request to fetch an order detail by ID
@@ -26,21 +30,24 @@ func (oc *OrderDetailController) GetOrderDetailByID(c echo.Context) error {
 	id := c.Param("id")
 	orderDetail, err := models.GetOrderDetailByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Order detail not found"})
+		utils.LogError("GetOrderDetailByID", "Order detail not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Order detail not found")})
 	}
-	return c.JSON(http.StatusOK, orderDetail)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: orderDetail})
 }
 
 // CreateOrderDetail handles POST request to create a new order detail
 func (oc *OrderDetailController) CreateOrderDetail(c echo.Context) error {
 	orderDetail := new(models.OrderDetail)
 	if err := c.Bind(orderDetail); err != nil {
-		return err
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid request payload")})
 	}
+
 	if err := models.CreateOrderDetail(orderDetail); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create order detail"})
+		utils.LogError("CreateOrderDetail", "Failed to create order detail", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to create order detail")})
 	}
-	return c.JSON(http.StatusCreated, orderDetail)
+	return api.Response(c, http.StatusCreated, api.ResponseType{Data: orderDetail})
 }
 
 // UpdateOrderDetail handles PUT request to update an order detail by ID
@@ -48,18 +55,20 @@ func (oc *OrderDetailController) UpdateOrderDetail(c echo.Context) error {
 	id := c.Param("id")
 	existingOrderDetail, err := models.GetOrderDetailByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Order detail not found"})
+		utils.LogError("UpdateOrderDetail", "Order detail not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Order detail not found")})
 	}
 
 	updatedOrderDetail := new(models.OrderDetail)
 	if err := c.Bind(updatedOrderDetail); err != nil {
-		return err
+		return api.Response(c, http.StatusBadRequest, api.ResponseType{Error: errors.New("Invalid request payload")})
 	}
 
 	if err := models.UpdateOrderDetail(existingOrderDetail, updatedOrderDetail); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update order detail"})
+		utils.LogError("UpdateOrderDetail", "Failed to update order detail", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to update order detail")})
 	}
-	return c.JSON(http.StatusOK, existingOrderDetail)
+	return api.Response(c, http.StatusOK, api.ResponseType{Data: existingOrderDetail})
 }
 
 // DeleteOrderDetail handles DELETE request to delete an order detail by ID
@@ -67,11 +76,13 @@ func (oc *OrderDetailController) DeleteOrderDetail(c echo.Context) error {
 	id := c.Param("id")
 	orderDetail, err := models.GetOrderDetailByID(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Order detail not found"})
+		utils.LogError("DeleteOrderDetail", "Order detail not found", err)
+		return api.Response(c, http.StatusNotFound, api.ResponseType{Error: errors.New("Order detail not found")})
 	}
 
 	if err := models.DeleteOrderDetail(orderDetail); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete order detail"})
+		utils.LogError("DeleteOrderDetail", "Failed to delete order detail", err)
+		return api.Response(c, http.StatusInternalServerError, api.ResponseType{Error: errors.New("Failed to delete order detail")})
 	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "Order detail deleted successfully"})
+	return api.Response(c, http.StatusOK, api.ResponseType{Message: "Order detail deleted successfully"})
 }

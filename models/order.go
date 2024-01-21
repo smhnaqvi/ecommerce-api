@@ -7,7 +7,7 @@ import (
 )
 
 type Order struct {
-	OrderID     uint      `gorm:"primaryKey;autoIncrement"`
+	OrderID     uint `gorm:"primaryKey;autoIncrement"`
 	UserID      uint
 	OrderDate   time.Time `gorm:"default:'2006-01-02 15:04:05'"`
 	TotalAmount float64   `gorm:"not null"`
